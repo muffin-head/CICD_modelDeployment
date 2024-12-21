@@ -1,15 +1,16 @@
 FROM python:3.9-slim
 
-# Set working directory
+# Set the working directory
 WORKDIR /app
 
-# Copy the entire RandomForest directory
-COPY ./RandomForest /app/RandomForest
+# Copy the model folder, including RandomForest and Scaler
+COPY model /app/model
 
-# Set up Python dependencies
-RUN pip install -r /app/RandomForest/requirements.txt
+# Install dependencies for both RandomForest and Scaler
+RUN pip install -r /app/model/RandomForest/requirements.txt
+RUN pip install -r /app/model/Scaler/requirements.txt
 
-# Copy application code
+# Copy the application file
 COPY app.py /app/
 
 # Expose the application port
