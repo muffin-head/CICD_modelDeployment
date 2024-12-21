@@ -19,13 +19,7 @@ jobs:
       - name: Authenticate with Azure CLI
         run: az login --use-device-code
 
-      # Step 3: Attach ACR to AKS (Ensure resources are in the correct group)
-      - name: Attach ACR to AKS
-        run: |
-          az aks update \
-            --resource-group rg-aks-acr-terraform \
-            --name aks-terraform-cluster \
-            --attach-acr acrterraformSepsisStreaming
+
 
       # Step 4: Build Docker Image
       - name: Build Docker Image
