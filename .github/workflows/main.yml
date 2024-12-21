@@ -15,12 +15,13 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      # Step 2: Install System Dependencies
-      - name: Install System Dependencies
+      # Step 2: Install Python Dependencies
+      - name: Install Python Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y python3-distutils python3-venv
-
+          sudo apt-get install -y python3-venv
+          python3 -m ensurepip
+          python3 -m pip install --upgrade pip setuptools
 
 
       # Step 4: Set Up Python Environment
