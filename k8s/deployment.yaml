@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: randomforest-model
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: randomforest
+  template:
+    metadata:
+      labels:
+        app: randomforest
+    spec:
+      containers:
+      - name: randomforest
+        image: acrterraformSepsisStreaming.azurecr.io/randomforest:staging
+        ports:
+        - containerPort: 5000
