@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: randomforest-service
+spec:
+  selector:
+    app: randomforest
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 5000
+  type: LoadBalancer
