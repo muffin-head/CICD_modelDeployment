@@ -1,0 +1,58 @@
+name: CI/CD for Model Deployment with Event Hub
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout Repository
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      # Step 2: Authenticate with Azure CLI
+      - name: Authenticate with Azure CLI
+        run: az login --use-device-code
+
+      # Step 3: Fetch Model from MLflow
+      - name: Fetch Model from MLflow
+        run: |
+          pip install mlflow
+          mkdir -p ./model
+          mlflow artifacts download -r "0f4da99408484e33a367655481ae8396" --dst-path ./model
+
+      # Step 4: Fetch StandardScaler from MLflow
+      - name: Fetch StandardScaler from MLflow
+        run: |
+          pip install mlflow
+          mkdir -p ./model/scaler
+          mlflow artifacts download -r "5697ad6983324a02a9c7afa803689e1f" --dst-path ./model/scaler
+
+      # Step 5: Run Model Tests
+      - name: Run Model Tests
+        run: |
+          pip install pytest mlflow pandas
+          pytest tests/
+
+      # Step 6: Build Docker Image
+      - name: Build Docker Image
+        run: |
+          docker build -t acrterraformSepsisStreaming.azurecr.io/randomforest:staging .
+
+      # Step 7: Push Docker Image to ACR
+      - name: Push Docker Image to ACR
+        run: |
+          az acr login --name acrterraformSepsisStreaming
+          docker push acrterraformSepsisStreaming.azurecr.io/randomforest:staging
+
+      # Step 8: Deploy to AKS
+      - name: Deploy to AKS
+        run: |
+          kubectl apply -f k8s/deployment.yaml
+          kubectl apply -f k8s/service.yaml
+
