@@ -21,8 +21,8 @@ REQUIRED_FEATURES = [
 ]
 
 # Event Hub connection details
-EVENT_HUB_CONNECTION_STR = "Your-Event-Hub-Connection-String"
-EVENT_HUB_NAME = "Your-Event-Hub-Name"
+EVENT_HUB_CONNECTION_STR = "Endpoint=sb://sepsisstreamingeventhubnamespace.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=HmtoeA1c8SpIls4m6VV55l79cIj/+AIAa+AEhPX1xDA="
+EVENT_HUB_NAME = "eventhubsepsisstreaminge"
 
 @app.route('/predict', methods=['POST'])
 def predict():
