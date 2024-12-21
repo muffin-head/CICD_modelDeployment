@@ -19,25 +19,33 @@ jobs:
       - name: Authenticate with Azure CLI
         run: az login --use-device-code
 
-      # Step 3: Set Databricks Tracking URI
+      # Step 3: Set MLFLOW_TRACKING_URI
       - name: Set Databricks Tracking URI
-        run: |
-          pip install mlflow
-          mlflow.set_tracking_uri("databricks")  # Set Databricks as tracking URI
+        env:
+          MLFLOW_TRACKING_URI: "databricks"
+        run: echo "MLFLOW_TRACKING_URI is set"
 
       # Step 4: Fetch Model from MLflow
       - name: Fetch Model from MLflow
+        env:
+          MLFLOW_TRACKING_URI: "databricks"
         run: |
           pip install mlflow
           mkdir -p ./model
-          mlflow artifacts download -r "dbfs:/databricks/mlflow-tracking/802063317058201/0f4da99408484e33a367655481ae8396/artifacts/RandomForest" --dst-path ./model
+          mlflow artifacts download \
+            --artifact-uri "dbfs:/databricks/mlflow-tracking/802063317058201/0f4da99408484e33a367655481ae8396/artifacts/RandomForest" \
+            --dst-path ./model
 
       # Step 5: Fetch StandardScaler from MLflow
       - name: Fetch StandardScaler from MLflow
+        env:
+          MLFLOW_TRACKING_URI: "databricks"
         run: |
           pip install mlflow
           mkdir -p ./model/scaler
-          mlflow artifacts download -r "dbfs:/databricks/mlflow-tracking/802063317058201/5697ad6983324a02a9c7afa803689e1f/artifacts/standard_scaler" --dst-path ./model/scaler
+          mlflow artifacts download \
+            --artifact-uri "dbfs:/databricks/mlflow-tracking/802063317058201/5697ad6983324a02a9c7afa803689e1f/artifacts/standard_scaler" \
+            --dst-path ./model/scaler
 
       # Step 6: Run Model Tests
       - name: Run Model Tests
