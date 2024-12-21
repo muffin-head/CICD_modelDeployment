@@ -15,22 +15,28 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      # Step 4: Authenticate with Azure CLI
+      # Step 2: Authenticate with Azure CLI Using Device Code
       - name: Authenticate with Azure CLI
-        run: az login --use-device-code
+        run: |
+          echo "Please log in using the device code below:"
+          az login --use-device-code
 
-      # Step 6: Build Docker Image
+      # Step 3: Authenticate with Azure Container Registry
+      - name: Authenticate with ACR
+        run: |
+          az acr login --name acrterraformSepsisStreaming
+
+      # Step 4: Build Docker Image
       - name: Build Docker Image
         run: |
           docker build -t acrterraformSepsisStreaming.azurecr.io/randomforest:staging .
 
-      # Step 7: Push Docker Image to ACR
+      # Step 5: Push Docker Image to ACR
       - name: Push Docker Image to ACR
         run: |
-          az acr login --name acrterraformSepsisStreaming
           docker push acrterraformSepsisStreaming.azurecr.io/randomforest:staging
 
-      # Step 8: Deploy to AKS
+      # Step 6: Deploy to AKS
       - name: Deploy to AKS
         run: |
           kubectl apply -f k8s/deployment.yaml
