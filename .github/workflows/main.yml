@@ -15,9 +15,15 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
+      # Step 2: Install System Dependencies
+      - name: Install System Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-distutils python3-venv
 
 
-      # Step 3: Set Up Python Environment
+
+      # Step 4: Set Up Python Environment
       - name: Set Up Python Environment
         run: |
           python3 -m venv .venv
@@ -25,24 +31,24 @@ jobs:
           pip install --upgrade pip
           pip install mlflow==2.19.0 cloudpickle==3.1.0 scikit-learn==1.0.2 pytest pandas
 
-      # Step 4: Run Model Tests
+      # Step 5: Run Model Tests
       - name: Run Model Tests
         run: |
           source .venv/bin/activate
           pytest tests/
 
-      # Step 5: Build Docker Image
+      # Step 6: Build Docker Image
       - name: Build Docker Image
         run: |
           docker build -t acrterraformSepsisStreaming.azurecr.io/randomforest:staging .
 
-      # Step 6: Push Docker Image to ACR
+      # Step 7: Push Docker Image to ACR
       - name: Push Docker Image to ACR
         run: |
           az acr login --name acrterraformSepsisStreaming
           docker push acrterraformSepsisStreaming.azurecr.io/randomforest:staging
 
-      # Step 7: Deploy to AKS
+      # Step 8: Deploy to AKS
       - name: Deploy to AKS
         run: |
           kubectl apply -f k8s/deployment.yaml
