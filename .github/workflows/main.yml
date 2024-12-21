@@ -15,13 +15,15 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      # Step 2: Install Python and Dependencies
+      # Step 2: Add Universe Repository and Install Python Dependencies
       - name: Install Python and System Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y python3 python3-venv python3-pip python3-distutils
+          sudo add-apt-repository universe
+          sudo apt-get update
+          sudo apt-get install -y python3 python3-venv python3-pip
 
-      # Step 3: Set Up Python Environment
+      # Step 3: Set Up Python Virtual Environment
       - name: Set Up Python Virtual Environment
         run: |
           python3 -m venv .venv
@@ -29,7 +31,7 @@ jobs:
           pip install --upgrade pip
           pip install mlflow==2.19.0 cloudpickle==3.1.0 scikit-learn==1.0.2 pytest pandas
 
-
+   
       # Step 5: Run Model Tests
       - name: Run Model Tests
         run: |
