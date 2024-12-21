@@ -7,7 +7,7 @@ from azure.eventhub import EventHubConsumerClient
 app = Flask(__name__)
 
 # Load the model and scaler from MLflow
-model_path = "./model"  # Ensure this matches the location where your model is stored
+model_path = "./model/RandomForest"  # Ensure this matches the location where your model is stored
 scaler_path = "./model/scaler"
 model = mlflow.sklearn.load_model(model_path)
 scaler = mlflow.sklearn.load_model(scaler_path)
