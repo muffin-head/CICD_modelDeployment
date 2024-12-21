@@ -21,17 +21,17 @@ jobs:
         with:
           python-version: 3.11
 
-      # Step 3: Authenticate with Azure CLI
-      - name: Authenticate with Azure CLI
-        run: az login --use-device-code
-
-      # Step 4: Install Dependencies
-      - name: Install Dependencies
+      # Step 3: Upgrade Build Tools
+      - name: Upgrade pip, setuptools, and wheel
         run: |
           python -m pip install --upgrade pip setuptools wheel
+
+      # Step 4: Install Specific Dependencies
+      - name: Install Dependencies
+        run: |
+          pip install cython==0.29.33
           pip install scikit-learn==1.0.2
-          pip install mlflow==2.19.0
-          pip install pandas pytest
+          pip install mlflow==2.19.0 pandas pytest
 
       # Step 5: Run Model Tests
       - name: Run Model Tests
