@@ -19,40 +19,45 @@ jobs:
       - name: Authenticate with Azure CLI
         run: az login --use-device-code
 
-      # Step 3: Fetch Model from MLflow
+      # Step 3: Set Databricks Tracking URI
+      - name: Set Databricks Tracking URI
+        run: |
+          pip install mlflow
+          mlflow.set_tracking_uri("databricks")  # Set Databricks as tracking URI
+
+      # Step 4: Fetch Model from MLflow
       - name: Fetch Model from MLflow
         run: |
           pip install mlflow
           mkdir -p ./model
-          mlflow artifacts download -r "0f4da99408484e33a367655481ae8396" --dst-path ./model
+          mlflow artifacts download -r "dbfs:/databricks/mlflow-tracking/802063317058201/0f4da99408484e33a367655481ae8396/artifacts/RandomForest" --dst-path ./model
 
-      # Step 4: Fetch StandardScaler from MLflow
+      # Step 5: Fetch StandardScaler from MLflow
       - name: Fetch StandardScaler from MLflow
         run: |
           pip install mlflow
           mkdir -p ./model/scaler
-          mlflow artifacts download -r "5697ad6983324a02a9c7afa803689e1f" --dst-path ./model/scaler
+          mlflow artifacts download -r "dbfs:/databricks/mlflow-tracking/802063317058201/5697ad6983324a02a9c7afa803689e1f/artifacts/standard_scaler" --dst-path ./model/scaler
 
-      # Step 5: Run Model Tests
+      # Step 6: Run Model Tests
       - name: Run Model Tests
         run: |
           pip install pytest mlflow pandas
           pytest tests/
 
-      # Step 6: Build Docker Image
+      # Step 7: Build Docker Image
       - name: Build Docker Image
         run: |
           docker build -t acrterraformSepsisStreaming.azurecr.io/randomforest:staging .
 
-      # Step 7: Push Docker Image to ACR
+      # Step 8: Push Docker Image to ACR
       - name: Push Docker Image to ACR
         run: |
           az acr login --name acrterraformSepsisStreaming
           docker push acrterraformSepsisStreaming.azurecr.io/randomforest:staging
 
-      # Step 8: Deploy to AKS
+      # Step 9: Deploy to AKS
       - name: Deploy to AKS
         run: |
           kubectl apply -f k8s/deployment.yaml
           kubectl apply -f k8s/service.yaml
-
