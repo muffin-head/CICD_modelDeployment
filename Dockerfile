@@ -1,23 +1,28 @@
-FROM continuumio/miniconda3:4.12.0
+# Use the official Python 3.9 slim image
+FROM python:3.9-slim
 
 # Set working directory
 WORKDIR /app
 
-# Copy conda environment file and requirements.txt
-COPY conda.yaml .
-COPY requirements.txt .
+# Copy model directories (RandomForest and Scaler) to the container
+COPY ./RandomForest /app/RandomForest
+COPY ./scaler /app/scaler
 
-# Create conda environment and install dependencies
-RUN conda env create -f conda.yaml && \
-    conda init bash && \
-    echo "source activate mlflow-env" > ~/.bashrc && \
-    /bin/bash -c "source ~/.bashrc && conda install pip && pip install -r requirements.txt"
+# Copy environment and requirements files (assumes both folders have the same dependencies)
+COPY ./RandomForest/conda.yaml /app/
+COPY ./RandomForest/requirements.txt /app/
 
-# Copy the application code
-COPY . .
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
 
-# Expose the port used by the Flask app
+# Install Python dependencies
+RUN pip install --upgrade pip==21.2.4 setuptools==61.2.0 wheel==0.37.0
+RUN pip install -r requirements.txt
+
+# Expose port for the Flask application
 EXPOSE 5000
 
-# Run the application
-CMD ["/bin/bash", "-c", "source activate mlflow-env && python app.py"]
+# Set default command to run Flask app (update this if the app script is different)
+CMD ["python", "app.py"]
