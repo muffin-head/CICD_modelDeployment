@@ -15,34 +15,41 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      # Step 2: Authenticate with Azure CLI
+      # Step 2: Set up Python Environment
+      - name: Set up Python 3.11 (Compatible with dependencies)
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+
+      # Step 3: Authenticate with Azure CLI
       - name: Authenticate with Azure CLI
         run: az login --use-device-code
 
-      # Step 3: Install Dependencies
+      # Step 4: Install Dependencies
       - name: Install Dependencies
         run: |
+          python -m pip install --upgrade pip setuptools wheel
           pip install scikit-learn==1.0.2
           pip install mlflow==2.19.0
           pip install pandas pytest
 
-      # Step 4: Run Model Tests
+      # Step 5: Run Model Tests
       - name: Run Model Tests
         run: |
           pytest tests/
 
-      # Step 5: Build Docker Image
+      # Step 6: Build Docker Image
       - name: Build Docker Image
         run: |
           docker build -t acrterraformSepsisStreaming.azurecr.io/randomforest:staging .
 
-      # Step 6: Push Docker Image to ACR
+      # Step 7: Push Docker Image to ACR
       - name: Push Docker Image to ACR
         run: |
           az acr login --name acrterraformSepsisStreaming
           docker push acrterraformSepsisStreaming.azurecr.io/randomforest:staging
 
-      # Step 7: Deploy to AKS
+      # Step 8: Deploy to AKS
       - name: Deploy to AKS
         run: |
           kubectl apply -f k8s/deployment.yaml
