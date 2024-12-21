@@ -19,24 +19,30 @@ jobs:
       - name: Authenticate with Azure CLI
         run: az login --use-device-code
 
-      # Step 3: Run Model Tests
+      # Step 3: Install Dependencies
+      - name: Install Dependencies
+        run: |
+          pip install scikit-learn==1.0.2
+          pip install mlflow==2.19.0
+          pip install pandas pytest
+
+      # Step 4: Run Model Tests
       - name: Run Model Tests
         run: |
-          pip install pytest mlflow pandas
           pytest tests/
 
-      # Step 4: Build Docker Image
+      # Step 5: Build Docker Image
       - name: Build Docker Image
         run: |
           docker build -t acrterraformSepsisStreaming.azurecr.io/randomforest:staging .
 
-      # Step 5: Push Docker Image to ACR
+      # Step 6: Push Docker Image to ACR
       - name: Push Docker Image to ACR
         run: |
           az acr login --name acrterraformSepsisStreaming
           docker push acrterraformSepsisStreaming.azurecr.io/randomforest:staging
 
-      # Step 6: Deploy to AKS
+      # Step 7: Deploy to AKS
       - name: Deploy to AKS
         run: |
           kubectl apply -f k8s/deployment.yaml
