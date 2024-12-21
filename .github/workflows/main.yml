@@ -1,4 +1,4 @@
-name: CI/CD for Model Deployment with Event Hub
+name: CI/CD for Model Deployment with AKS and ACR
 
 on:
   push:
@@ -19,26 +19,31 @@ jobs:
       - name: Authenticate with Azure CLI
         run: az login --use-device-code
 
-
-      # Step 4: Build Docker Image
-      - name: Build Docker Image
+      # Step 3: Attach ACR to AKS
+      - name: Attach ACR to AKS
         run: |
-          docker build -t acrterraformsepsisstreaming.azurecr.io/randomforest:staging .
+          az aks update \
+            --resource-group rg-aks-acr-terraform \
+            --name aks-terraform-cluster \
+            --attach-acr acrterraformSepsisStreaming
 
-      # Step 5: Login to ACR using Admin Credentials
-      - name: Login to ACR
+      # Step 4: Build Docker Image (Commented Out)
+      # - name: Build Docker Image
+      #   run: |
+      #     az acr login --name acrterraformSepsisStreaming
+      #     docker build -t acrterraformsepsisstreaming.azurecr.io/randomforest:staging .
+      #     docker push acrterraformsepsisstreaming.azurecr.io/randomforest:staging
+
+      # Step 5: Configure kubectl for AKS
+      - name: Configure kubectl
         run: |
-          docker login acrterraformsepsisstreaming.azurecr.io \
-            -u "acrterraformSepsisStreaming" \
-            -p "PQ3Te9RolGBeaiwpouUmh0BFCQSSB0ECqFKHegFJub+ACRCH/KKk"
+          az aks get-credentials \
+            --resource-group rg-aks-acr-terraform \
+            --name aks-terraform-cluster \
+            --overwrite-existing
 
-      # Step 6: Push Docker Image to ACR
-      - name: Push Docker Image to ACR
-        run: |
-          docker push acrterraformsepsisstreaming.azurecr.io/randomforest:staging
-
-      # Step 7: Deploy to AKS
-      - name: Deploy to AKS
+      # Step 6: Deploy Application to AKS
+      - name: Deploy Application
         run: |
           kubectl apply -f k8s/deployment.yaml
           kubectl apply -f k8s/service.yaml
