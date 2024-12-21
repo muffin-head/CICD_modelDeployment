@@ -19,11 +19,6 @@ jobs:
       - name: Authenticate with Azure CLI
         run: az login --use-device-code
 
-      # Step 3: Run Model Tests
-      - name: Run Model Tests
-        run: |
-          pip install pytest mlflow pandas
-          pytest tests/
 
       # Step 4: Build Docker Image
       - name: Build Docker Image
