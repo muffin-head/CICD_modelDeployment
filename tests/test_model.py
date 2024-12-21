@@ -4,7 +4,7 @@ import pandas as pd
 
 @pytest.fixture
 def load_model():
-    model_path = "./model"
+    model_path = "./model/RandomForest"
     model = mlflow.sklearn.load_model(model_path)
     return model
 
