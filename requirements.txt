@@ -1,0 +1,5 @@
+flask
+mlflow
+scikit-learn
+pandas
+azure-eventhub
