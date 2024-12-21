@@ -15,28 +15,34 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      # Step 2: Authenticate with Azure CLI Using Device Code
+      # Step 2: Authenticate with Azure CLI
       - name: Authenticate with Azure CLI
-        run: |
-          echo "Please log in using the device code below:"
-          az login --use-device-code
+        run: az login --use-device-code
 
-      # Step 3: Authenticate with Azure Container Registry
-      - name: Authenticate with ACR
+      # Step 3: Run Model Tests
+      - name: Run Model Tests
         run: |
-          az acr login --name acrterraformSepsisStreaming
+          pip install pytest mlflow pandas
+          pytest tests/
 
       # Step 4: Build Docker Image
       - name: Build Docker Image
         run: |
-          docker build -t acrterraformSepsisStreaming.azurecr.io/randomforest:staging .
+          docker build -t acrterraformsepsisstreaming.azurecr.io/randomforest:staging .
 
-      # Step 5: Push Docker Image to ACR
+      # Step 5: Login to ACR using Admin Credentials
+      - name: Login to ACR
+        run: |
+          docker login acrterraformsepsisstreaming.azurecr.io \
+            -u "acrterraformSepsisStreaming" \
+            -p "PQ3Te9RolGBeaiwpouUmh0BFCQSSB0ECqFKHegFJub+ACRCH/KKk"
+
+      # Step 6: Push Docker Image to ACR
       - name: Push Docker Image to ACR
         run: |
-          docker push acrterraformSepsisStreaming.azurecr.io/randomforest:staging
+          docker push acrterraformsepsisstreaming.azurecr.io/randomforest:staging
 
-      # Step 6: Deploy to AKS
+      # Step 7: Deploy to AKS
       - name: Deploy to AKS
         run: |
           kubectl apply -f k8s/deployment.yaml
