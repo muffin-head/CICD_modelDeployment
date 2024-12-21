@@ -44,16 +44,3 @@ jobs:
         run: |
           docker push acrterraformsepsisstreaming.azurecr.io/randomforest:staging
 
-      # Step 7: Configure kubectl for AKS
-      - name: Configure kubectl
-        run: |
-          az aks get-credentials \
-            --resource-group rg-aks-acr-terraform \
-            --name aks-terraform-cluster \
-            --overwrite-existing
-
-      # Step 8: Deploy Application to AKS
-      - name: Deploy Application
-        run: |
-          kubectl apply -f k8s/deployment.yaml
-          kubectl apply -f k8s/service.yaml
