@@ -27,23 +27,24 @@ jobs:
             --name aks-terraform-cluster \
             --attach-acr acrterraformSepsisStreaming
 
-      # Step 4: Fetch ACR Credentials
-      - name: Fetch ACR Credentials
-        id: fetch-acr-credentials
-        run: |
-          ACR_USERNAME=$(az acr credential show --name acrterraformSepsisStreaming --query username -o tsv)
-          ACR_PASSWORD=$(az acr credential show --name acrterraformSepsisStreaming --query passwords[0].value -o tsv)
-          echo "ACR_USERNAME=$ACR_USERNAME" >> $GITHUB_ENV
-          echo "ACR_PASSWORD=$ACR_PASSWORD" >> $GITHUB_ENV
-
-      # Step 5: Build Docker Image
+      # Step 4: Build Docker Image
       - name: Build Docker Image
         run: |
-          echo $ACR_PASSWORD | docker login acrterraformSepsisStreaming.azurecr.io --username $ACR_USERNAME --password-stdin
           docker build -t acrterraformsepsisstreaming.azurecr.io/randomforest:staging .
+
+      # Step 5: Login to ACR using Admin Credentials
+      - name: Login to ACR
+        run: |
+          docker login acrterraformsepsisstreaming.azurecr.io \
+            -u "acrterraformSepsisStreaming" \
+            -p "PQ3Te9RolGBeaiwpouUmh0BFCQSSB0ECqFKHegFJub+ACRCH/KKk"
+
+      # Step 6: Push Docker Image to ACR
+      - name: Push Docker Image to ACR
+        run: |
           docker push acrterraformsepsisstreaming.azurecr.io/randomforest:staging
 
-      # Step 6: Configure kubectl for AKS
+      # Step 7: Configure kubectl for AKS
       - name: Configure kubectl
         run: |
           az aks get-credentials \
@@ -51,7 +52,7 @@ jobs:
             --name aks-terraform-cluster \
             --overwrite-existing
 
-      # Step 7: Deploy Application to AKS
+      # Step 8: Deploy Application to AKS
       - name: Deploy Application
         run: |
           kubectl apply -f k8s/deployment.yaml
