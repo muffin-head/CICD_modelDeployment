@@ -1,5 +1,4 @@
 flask
 mlflow
-scikit-learn
 pandas
 azure-eventhub==5.10.1
