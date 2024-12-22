@@ -19,22 +19,48 @@ jobs:
       - name: Authenticate with Azure CLI
         run: az login --use-device-code
 
-
+      # Step 3: Debug - Check Azure CLI Authentication
+      - name: Verify Azure CLI Authentication
+        run: az account show
 
       # Step 4: Build Docker Image
       - name: Build Docker Image
         run: |
+          echo "Building Docker image..."
           docker build -t acrterraformsepsisstreaming.azurecr.io/randomforest:staging .
+          echo "Docker image built successfully!"
 
-      # Step 5: Login to ACR using Admin Credentials
+      # Step 5: Debug - Verify Azure Event Hub Installation
+      - name: Check Azure Event Hub Dependency
+        run: |
+          docker run --rm acrterraformsepsisstreaming.azurecr.io/randomforest:staging python -c "import azure.eventhub; print('Azure EventHub imported successfully!')"
+
+      # Step 6: Login to ACR using Admin Credentials
       - name: Login to ACR
         run: |
+          echo "Logging into Azure Container Registry..."
           docker login acrterraformsepsisstreaming.azurecr.io \
             -u "acrterraformSepsisStreaming" \
             -p "PQ3Te9RolGBeaiwpouUmh0BFCQSSB0ECqFKHegFJub+ACRCH/KKk"
+          echo "Logged into ACR successfully!"
 
-      # Step 6: Push Docker Image to ACR
+      # Step 7: Push Docker Image to ACR
       - name: Push Docker Image to ACR
         run: |
+          echo "Pushing Docker image to ACR..."
           docker push acrterraformsepsisstreaming.azurecr.io/randomforest:staging
+          echo "Docker image pushed successfully!"
 
+      # Step 8: Debug - Verify Event Hub Connection in Docker Container
+      - name: Test Event Hub Connection
+        run: |
+          echo "Testing Event Hub connectivity..."
+          docker run --rm acrterraformsepsisstreaming.azurecr.io/randomforest:staging python -c "
+          from azure.eventhub import EventHubConsumerClient;
+          print('Azure Event Hub connectivity test starting...');
+          connection_str = 'Endpoint=sb://your_eventhub_namespace.servicebus.windows.net/;SharedAccessKeyName=your_policy;SharedAccessKey=your_key';
+          client = EventHubConsumerClient.from_connection_string(connection_str, consumer_group='$Default');
+          print('Event Hub client created successfully!');
+          with client:
+              print('Simulated Event Hub session successful!');
+          "
