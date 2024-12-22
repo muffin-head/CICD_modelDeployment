@@ -1,0 +1,13 @@
+artifact_path: ss_model
+databricks_runtime: '12.2'
+flavors:
+  sklearn:
+    code: null
+    pickled_model: model.pkl
+    serialization_format: cloudpickle
+    sklearn_version: 1.6.0
+mlflow_version: 2.19.0
+model_size_bytes: 747
+model_uuid: e3ada2cd052047a09ec769cc7a69d508
+run_id: 7fda4f48f5544838876b33931364e1f6
+utc_time_created: '2024-12-22 02:48:43.458404'
