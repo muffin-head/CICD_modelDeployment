@@ -5,7 +5,7 @@ flavors:
     code: null
     pickled_model: model.pkl
     serialization_format: cloudpickle
-    sklearn_version: 1.0.2
+    sklearn_version: 1.6.0
 mlflow_version: 2.19.0
 model_size_bytes: 747
 model_uuid: 12c16da11f2343a0ae102c6ba0ad24bc
