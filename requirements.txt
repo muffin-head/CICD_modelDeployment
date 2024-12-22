@@ -1,4 +1,0 @@
-flask
-mlflow
-pandas
-azure-eventhub==5.10.1
