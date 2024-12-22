@@ -12,7 +12,6 @@ COPY ./model/scaler/requirements.txt /app/scaler-requirements.txt
 
 # Install dependencies
 RUN pip install --upgrade pip && \
-    pip install -r requirements.txt && \
     pip install -r /app/RandomForest-requirements.txt && \
     pip install -r /app/scaler-requirements.txt
 
