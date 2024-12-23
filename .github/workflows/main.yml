@@ -1,4 +1,4 @@
-name: Build, Push, and Deploy to AKS
+name: Build, Push, and Deploy to AKS (v1)
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
 
 jobs:
   build-push-deploy:
-    name: Build, Push, and Deploy ML Model to AKS
+    name: Build, Push, and Deploy ML Model to AKS (v1)
     runs-on: ubuntu-latest
 
     steps:
@@ -24,7 +24,7 @@ jobs:
       - name: Set Azure Subscription
         run: az account set --subscription "1fad5e2e-cd4b-437b-8fff-ee503b4e0e29"
 
-      # Step 4: Log in to Azure Container Registry
+      # Step 4: Log in to Azure Container Registry (v1)
       - name: Log in to Azure Container Registry
         run: az acr login --name acrterraformSepsisStreamingv1
 
@@ -34,7 +34,7 @@ jobs:
           docker build -t acrterraformsepsisstreamingv1.azurecr.io/your-image-name:latest .
           docker push acrterraformsepsisstreamingv1.azurecr.io/your-image-name:latest
 
-      # Step 6: Get AKS Credentials
+      # Step 6: Get AKS Credentials (v1)
       - name: Configure kubectl for AKS
         run: |
           az aks get-credentials \
@@ -48,7 +48,19 @@ jobs:
           kubectl apply -f k8s/deployment.yaml
           kubectl apply -f k8s/service.yaml
 
-      # Step 8: Verify Deployment
+      # Step 8: Redeploy with Updated Image
+      - name: Redeploy ML Model with Updated Image
+        run: |
+          kubectl set image deployment/ml-model-deployment \
+            ml-model=acrterraformsepsisstreamingv1.azurecr.io/your-image-name:latest
+
+      # Step 9: Wait for Resources to Stabilize
+      - name: Wait for Resources to Stabilize
+        run: |
+          echo "Waiting for pods and service to stabilize..."
+          sleep 30
+
+      # Step 10: Verify Deployment
       - name: Check Pods and External IP
         run: |
           kubectl get pods
