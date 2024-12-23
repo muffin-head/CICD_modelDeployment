@@ -3,7 +3,7 @@ name: Build, Push, and Deploy to AKS (v1)
 on:
   push:
     branches:
-      - main
+      - dataSaving
   workflow_dispatch:
 
 jobs:
