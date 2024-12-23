@@ -20,7 +20,7 @@ with open('RandomForest/model.pkl', 'rb') as f:
     model = pickle.load(f)
 
 # Azure Event Hub configuration
-EVENT_HUB_CONNECTION_STRING = "Endpoint=sb://sepsisstreamingeventhubnamespace.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=HmtoeA1c8SpIls4m6VV55l79cIj/+AIAa+AEhPX1xDA=;EntityPath=eventhubsepsisstreaming"
+EVENT_HUB_CONNECTION_STRING = "Endpoint=sb://sepsisstreamingeventhubnamespace.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=HmtoeA1c8SpIls4m6VV55l79cIj/+AIAa+AEhPX1xDA="
 EVENT_HUB_NAME = "eventhubsepsisstreaming"
 
 @app.route('/predict', methods=['POST'])
