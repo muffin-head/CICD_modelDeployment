@@ -17,8 +17,8 @@ with open('RandomForest/model.pkl', 'rb') as f:
     model = pickle.load(f)
 
 # Azure Data Lake Storage connection string
-AZURE_STORAGE_CONNECTION_STRING = "your_connection_string"
-CONTAINER_NAME = "predictions"
+AZURE_STORAGE_CONNECTION_STRING = "DefaultEndpointsProtocol=https;AccountName=datalaketfexample;AccountKey=7bZ7+qULn3sdaGQXqfJzzohWqqy172fopVsPA7X341sr31rdSUnUqPQrIN3aPz9Xi/U9Z/2Z/alu+AStkU42pg==;EndpointSuffix=core.windows.net"
+CONTAINER_NAME = "gold"
 
 # Initialize Blob Service Client
 blob_service_client = BlobServiceClient.from_connection_string(AZURE_STORAGE_CONNECTION_STRING)
