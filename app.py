@@ -2,9 +2,12 @@ from flask import Flask, request, jsonify
 import pickle
 import numpy as np
 import pandas as pd
-from azure.storage.blob import BlobServiceClient
+import asyncio
+from azure.eventhub.aio import EventHubProducerClient
+from azure.eventhub import EventData
 import json
 from datetime import datetime
+from azure.eventhub import TransportType
 
 app = Flask(__name__)
 
@@ -16,13 +19,9 @@ with open('scaler/scaler.pkl', 'rb') as f:
 with open('RandomForest/model.pkl', 'rb') as f:
     model = pickle.load(f)
 
-# Azure Data Lake Storage connection string
-AZURE_STORAGE_CONNECTION_STRING = "DefaultEndpointsProtocol=https;AccountName=datalaketfexample;AccountKey=7bZ7+qULn3sdaGQXqfJzzohWqqy172fopVsPA7X341sr31rdSUnUqPQrIN3aPz9Xi/U9Z/2Z/alu+AStkU42pg==;EndpointSuffix=core.windows.net"
-CONTAINER_NAME = "gold"
-
-# Initialize Blob Service Client
-blob_service_client = BlobServiceClient.from_connection_string(AZURE_STORAGE_CONNECTION_STRING)
-container_client = blob_service_client.get_container_client(CONTAINER_NAME)
+# Azure Event Hub configuration
+EVENT_HUB_CONNECTION_STRING = "Endpoint=sb://sepsisstreamingeventhubnamespace.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=HmtoeA1c8SpIls4m6VV55l79cIj/+AIAa+AEhPX1xDA=;EntityPath=eventhubsepsisstreaming"
+EVENT_HUB_NAME = "eventhubsepsisstreaming"
 
 @app.route('/predict', methods=['POST'])
 def predict():
@@ -41,7 +40,7 @@ def predict():
         # Make predictions
         predictions = model.predict(scaled_features)
 
-        # Prepare data for saving
+        # Prepare data for streaming
         result = {
             "timestamp": datetime.utcnow().isoformat(),
             "input_data": data,
@@ -49,13 +48,30 @@ def predict():
         }
         result_json = json.dumps(result)
 
-        # Save to Azure Data Lake
-        blob_name = f"predictions_{datetime.utcnow().strftime('%Y%m%d%H%M%S')}.json"
-        container_client.upload_blob(name=blob_name, data=result_json, overwrite=True)
+        # Send data to Event Hub
+        asyncio.run(send_to_eventhub(result_json))
 
-        return jsonify({'predictions': predictions.tolist(), 'message': f"Saved to ADLS as {blob_name}"})
+        return jsonify({'predictions': predictions.tolist(), 'message': "Sent to Event Hub"})
     except Exception as e:
         return jsonify({'error': str(e)})
+
+
+async def send_to_eventhub(data):
+    """Send prediction data to Azure Event Hub."""
+    producer = EventHubProducerClient.from_connection_string(
+        conn_str=EVENT_HUB_CONNECTION_STRING,
+        eventhub_name=EVENT_HUB_NAME,
+        transport_type=TransportType.AmqpOverWebsocket
+    )
+
+    async with producer:
+        # Create a batch and add data
+        event_data_batch = await producer.create_batch()
+        event_data_batch.add(EventData(data))
+
+        # Send the batch
+        await producer.send_batch(event_data_batch)
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
