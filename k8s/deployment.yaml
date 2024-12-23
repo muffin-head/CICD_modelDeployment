@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: ml-model
-          image: acrterraformsepsisstreaming.azurecr.io/your-image-name:latest
+          image: acrterraformsepsisstreamingv1.azurecr.io/your-image-name:latest
           ports:
             - containerPort: 5000
           env:
